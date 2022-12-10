@@ -53,7 +53,8 @@ class Connect4GUI():
         move()
         if self.board.end:
             points = self.board.checkWinner()
-            Label(self.root, text = f"Player1: {points[0]}      Player2: {points[1]}").place(relx=0.3, rely=0.08)
+            Label(self.root, text = f"\tPlayer1: {points[0]}\t\t\tPlayer2: {points[1]}", 
+            fg="black", font=("Helvetica", 20)).place(relx=0.1, rely=0.08)
 
 
 Connect4GUI(Board())
