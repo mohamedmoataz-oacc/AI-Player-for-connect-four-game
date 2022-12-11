@@ -7,22 +7,25 @@ class Node():
         self.parent = parent
         if self.parent is not None:
             # node type: 0 for max node and 1 for min node
-            self.node_type = (self.parent.node_type + 1) % 2
-            self.depth = self.parent.depth + 1
-            self.alpha = self.parent.alpha
-            self.beta = self.parent.beta
+            self.node_type: int = (self.parent.node_type + 1) % 2
+            self.depth: int = self.parent.depth + 1
+            self.move: int = None
+            self.alpha: int = self.parent.alpha
+            self.beta: int = self.parent.beta
         else:
             self.node_type = 0
             self.depth = 0
+            self.move = None
             self.alpha = float('-inf')
             self.beta = float('inf')
         if self.node_type == 0: self.score = float('-inf')
         else: self.score = float('inf')
-        self.children = []
-        self.state = state
+        self.children: list = []
+        self.state: Board = state
 
-    def addChild(self, state: Board):
+    def addChild(self, state: Board, move: int):
         n = Node(state, self)
+        n.move = move
         self.children.append(n)
         return n
 
@@ -33,33 +36,28 @@ class Node():
 
 class MinimaxTree():
     def __init__(self, tree_depth, board: Board, player: int, prunning: bool):
-        self.root = Node(board, None)
-        self.size = 1
-        self.tree_depth = tree_depth
-        self.player = player
-        self.prunning = prunning
-        self.heuristic_points = {
+        self.root: Node = Node(board, None)
+        self.size: int = 1
+        self.tree_depth: int = tree_depth
+        self.player: int = player
+        self.prunning: bool = prunning
+        self.heuristic_points: dict = {
             self.player: {2: 20, 3: 30, 4: 105},
             (self.player + 1) % 2: {2: -25, 3: -35, 4: -100}
         }
-        self.num = 1
+        # self.num = 1
         self.constructTree()
         
     def calculateLeafNodeScore(self, node: Node):
         board = node.state
         columns = [i.copy() for i in board.columns]
-        for column in columns:
-            if len(column) < 6:
-                x = len(column)
-                for i in range(0, 6 - x):
-                    column.append(2)
-
+                    
         # print(self.num, ":", end = " ")
         node.score = self.getColumnHeurstic(columns)
         node.score += self.getRowHeurstic(columns)
         node.score += self.getDiagonalHeurstic(columns)
         # print("")
-        self.num += 1
+        # self.num += 1
 
         if self.prunning:
             if node.node_type == 0: node.alpha = node.score
@@ -77,7 +75,7 @@ class MinimaxTree():
             for move in moves:
                 bcopy = board.copy()
                 bcopy.addPiece(move)
-                p = current.addChild(bcopy)
+                p = current.addChild(bcopy, move)
                 self.size += 1
                 if p.depth < self.tree_depth: stack.append(p)
                 elif p.depth == self.tree_depth:
@@ -183,17 +181,17 @@ class MinimaxTree():
         return score
 
 
-
-b = Board()
-b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
-x1 = time.time()
-mimx = MinimaxTree(4, b, 0, False)
-x2 = time.time()
-print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
-x1 = time.time()
-mimx2 = MinimaxTree(10, b, 0, True)
-x2 = time.time()
-print(f"Size: {mimx2.size}\t\tTime: {x2 - x1}")
-# print(mimx2.root.score)
-# for i in mimx2.root.children:
-#     print(i.score, end="\t")
+if __name__ == "__main__":
+    b = Board()
+    b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+    x1 = time.time()
+    mimx = MinimaxTree(4, b, 0, False)
+    x2 = time.time()
+    print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
+    x1 = time.time()
+    mimx2 = MinimaxTree(10, b, 0, True)
+    x2 = time.time()
+    print(f"Size: {mimx2.size}\t\tTime: {x2 - x1}")
+    # print(mimx2.root.score)
+    # for i in mimx2.root.children:
+    #     print(i.score, end="\t")

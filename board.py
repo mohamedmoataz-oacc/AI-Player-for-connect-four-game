@@ -1,25 +1,30 @@
 class Board():
     def __init__(self) -> None:
-        self.columns = [[],[],[],[],[],[],[]]
+        self.columns = [[2 for j in range(6)] for i in range(7)]
+        self.pieces_in_columns = [0,0,0,0,0,0,0]
         self.turn = 0
         self.end = False
         self.players = {0: 0, 1: 0}
 
 
     def generatePossibleMoves(self) -> list[int]:
-        return [i for i in range(0,7) if len(self.columns[i]) < 6]
+        return [i for i in range(0,7) if self.columns[i].count(2) != 0]
 
     def addPiece(self, column_num) -> bool:
         if column_num < 0 or column_num > 6 or not isinstance(column_num, int) or \
             column_num not in self.generatePossibleMoves():
             return None
-        if self.turn == 0: self.columns[column_num].append(0)
-        if self.turn == 1: self.columns[column_num].append(1)
+        if self.turn == 0:
+            self.columns[column_num][self.pieces_in_columns[column_num]] = 0
+            self.pieces_in_columns[column_num] += 1
+        if self.turn == 1:
+            self.columns[column_num][self.pieces_in_columns[column_num]] = 1
+            self.pieces_in_columns[column_num] += 1
         return self.switchTurn()
 
     def switchTurn(self) -> bool:
         for i in self.columns:
-            if len(i) < 6:
+            if i.count(2) != 0:
                 self.turn = (self.turn + 1) % 2
                 return True
         self.end = True
@@ -84,11 +89,6 @@ class Board():
 
     def checkWinner(self) -> list[int]:
         columns = [i.copy() for i in self.columns]
-        for column in columns:
-            if len(column) < 6:
-                x = len(column)
-                for i in range(0, 6 - x):
-                    column.append(2)
 
         # self.printBoard()
         self.players[0], self.players[1] = 0, 0  
@@ -99,11 +99,6 @@ class Board():
 
     def printBoard(self):
         columns = [i.copy() for i in self.columns]
-        for column in columns:
-            if len(column) < 6:
-                x = len(column)
-                for i in range(0, 6 - x):
-                    column.append(2)
 
         y = list(zip(*columns))
         y.reverse()
