@@ -5,38 +5,40 @@ class optionsGUI():
     def __init__(self) -> None:
         self.master = Tk()
         self.master.title("Connect 4 game")
-        self.master.geometry("500x500")
+        self.master.geometry("650x300")
+        self.master.config(bg="#2F4F4F")
 
         self.var = IntVar()
-        Radiobutton(self.master, text = "Human vs AI", variable = self.var, value=1).place(relx=0.1, rely=0.1)
-        Radiobutton(self.master, text = "AI vs Human", variable = self.var, value=2).place(relx=0.1, rely=0.2)
-        Radiobutton(self.master, text = "AI vs AI", variable = self.var, value = 3,
-                    command = self.addK).place(relx=0.1, rely=0.3)
+        Radiobutton(self.master, text = "Human vs AI", variable = self.var, bg="#2F4F4F",
+                value=1, font=("Helvetica", 18)).place(relx=0.1, rely=0.1)
+        Radiobutton(self.master, text = "AI vs Human", variable = self.var, bg="#2F4F4F",
+                value=2, font=("Helvetica", 18)).place(relx=0.1, rely=0.3)
+        Radiobutton(self.master, text = "AI vs AI", variable = self.var, value = 3, bg="#2F4F4F",
+                    command = self.addK, font=("Helvetica", 18)).place(relx=0.1, rely=0.5)
 
         self.name_var = StringVar()
         self.k1 = Entry(self.master, textvariable = self.name_var)
         self.p1var = BooleanVar()
-        prunning1 = Checkbutton(self.master, text = "with prunning", 
-                    variable = self.p1var, onvalue = True, offvalue = False)
-        Label(self.master, text = "K1").place(relx = 0.55, rely = 0.15)
-        self.k1.place(relx = 0.65, relwidth = 0.1, rely = 0.15)
-        prunning1.place(relx = 0.77, rely = 0.14)
-        
-        
+        prunning1 = Checkbutton(self.master, text = "with prunning", font=("Helvetica", 14),
+                    variable = self.p1var, bg="#2F4F4F", onvalue = True, offvalue = False)
+        Label(self.master, text = "K1", font=("Helvetica", 14), bg="#2F4F4F").place(relx = 0.55, rely = 0.2)
+        self.k1.place(relx = 0.65, relwidth = 0.1, rely = 0.2)
+        prunning1.place(relx = 0.77, rely = 0.19)
 
-        Button(self.master, text = "Start", command = self.start).place(relx=0.15, rely = 0.4)
+        Button(self.master, text = "Start", font=("Helvetica", 14),
+        command = self.start).place(relx=0.45, rely = 0.8, relwidth=0.1)
 
         self.master.mainloop()
 
     def addK(self):
         self.name_var2 = StringVar()
-        self.k2 = Entry(self.master, textvariable= self.name_var2)
+        self.k2 = Entry(self.master, textvariable = self.name_var2)
         self.p2var = BooleanVar()
-        prunning2 = Checkbutton(self.master, text = "with prunning", 
-                    variable = self.p2var, onvalue = True, offvalue = False)
-        prunning2.place(relx = 0.77, rely = 0.24)
-        Label(self.master, text = "K2").place(relx = 0.55, rely = 0.25)
-        self.k2.place(relx = 0.65, relwidth = 0.1, rely = 0.25)
+        prunning2 = Checkbutton(self.master, text = "with prunning", font=("Helvetica", 14), 
+                    variable = self.p2var, bg="#2F4F4F", onvalue = True, offvalue = False)
+        prunning2.place(relx = 0.77, rely = 0.39)
+        Label(self.master, text = "K2", font=("Helvetica", 14), bg="#2F4F4F").place(relx = 0.55, rely = 0.4)
+        self.k2.place(relx = 0.65, relwidth = 0.1, rely = 0.4)
 
     def start(self):
         if self.var.get() != 0: self.master.destroy()

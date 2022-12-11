@@ -88,8 +88,8 @@ class MinimaxTree():
                     self.passScore(p)
                     if self.prunning and current.alpha > current.beta: break
 
-            # To view the element at the top of the stack without removing it
             if stack:
+                # To view the element at the top of the stack without removing it
                 t = stack.pop()
                 stack.append(t)
             
