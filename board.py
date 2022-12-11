@@ -5,6 +5,7 @@ class Board():
         self.end = False
         self.players = {0: 0, 1: 0}
 
+
     def generatePossibleMoves(self) -> list[int]:
         return [i for i in range(0,7) if len(self.columns[i]) < 6]
 
@@ -38,6 +39,7 @@ class Board():
             number = column[0]
             counter = 1
             for i in range(1,6):
+                if column[i] == 2: break
                 if column[i] == number:
                     counter += 1
                 else:

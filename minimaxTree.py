@@ -20,7 +20,7 @@ class Node():
         else: self.score = float('inf')
         self.children = []
         self.state = state
-        
+
     def addChild(self, state: Board):
         n = Node(state, self)
         self.children.append(n)
@@ -38,13 +38,28 @@ class MinimaxTree():
         self.tree_depth = tree_depth
         self.player = player
         self.prunning = prunning
+        self.heuristic_points = {
+            self.player: {2: 20, 3: 30, 4: 105},
+            (self.player + 1) % 2: {2: -25, 3: -35, 4: -100}
+        }
+        self.num = 1
         self.constructTree()
         
     def calculateLeafNodeScore(self, node: Node):
         board = node.state
-        points: list[int] = board.checkWinner()
-        if self.player == 0: node.score = points[0] - points[1]
-        else: node.score = points[1] - points[0]
+        columns = [i.copy() for i in board.columns]
+        for column in columns:
+            if len(column) < 6:
+                x = len(column)
+                for i in range(0, 6 - x):
+                    column.append(2)
+
+        # print(self.num, ":", end = " ")
+        node.score = self.getColumnHeurstic(columns)
+        node.score += self.getRowHeurstic(columns)
+        node.score += self.getDiagonalHeurstic(columns)
+        # print("")
+        self.num += 1
 
         if self.prunning:
             if node.node_type == 0: node.alpha = node.score
@@ -95,17 +110,90 @@ class MinimaxTree():
                 node.parent.score = node.score
                 if self.prunning and node.alpha < node.parent.beta: node.parent.beta = node.alpha
 
+    def getColumnHeurstic(self, columns):
+        score = 0
+        for column in columns:
+            for i in range(4,7):
+                numbers = column[i-4:i]
+
+                zeros = numbers.count(0)
+                ones = numbers.count(1)
+
+                if zeros != 0 and ones != 0: continue
+                elif zeros > 1:
+                    score += self.heuristic_points[0][zeros]
+                    # print(self.heuristic_points[0][zeros], end=", ")
+                elif ones > 1:
+                    score += self.heuristic_points[1][ones]
+                    # print(self.heuristic_points[1][ones], end=", ")
+        # print("|", end="")
+        return score
+
+    def getRowHeurstic(self, c):
+        rows = list(zip(*c))
+        score = 0
+        for row in rows:
+            for i in range(4,8):
+                numbers = row[i-4:i]
+
+                zeros = numbers.count(0)
+                ones = numbers.count(1)
+
+                if zeros != 0 and ones != 0: continue
+                elif zeros > 1:
+                    score += self.heuristic_points[0][zeros]
+                    # print(self.heuristic_points[0][zeros], end=", ")
+                elif ones > 1:
+                    score += self.heuristic_points[1][ones]
+                    # print(self.heuristic_points[1][ones], end=", ")
+        # print("|", end="")
+        return score
+
+    def getDiagonalHeurstic(self, c):
+        score = 0
+        for index in range(0, 4):
+            for i in range(0, 3):
+                window1 = [c[index + j][i + j] for j in range(0, 4)]
+                zeros = window1.count(0)
+                ones = window1.count(1)
+
+                if zeros != 0 and ones != 0: continue
+                elif zeros > 1:
+                    score += self.heuristic_points[0][zeros]
+                    # print(self.heuristic_points[0][zeros], end=", ")
+                elif ones > 1:
+                    score += self.heuristic_points[1][ones]
+                    # print(self.heuristic_points[1][ones], end=", ")
+        # print("|", end="")
+
+        for index in range(6, 2, -1):
+            for i in range(0, 3):
+                window1 = [c[index - j][i + j] for j in range(0, 4)]
+                zeros = window1.count(0)
+                ones = window1.count(1)
+
+                if zeros != 0 and ones != 0: continue
+                elif zeros > 1:
+                    score += self.heuristic_points[0][zeros]
+                    # print(self.heuristic_points[0][zeros], end=", ")
+                elif ones > 1:
+                    score += self.heuristic_points[1][ones]
+                    # print(self.heuristic_points[1][ones], end=", ")
+        # print("|", end="")
+        return score
+
+
 
 b = Board()
 b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
-# x1 = time.time()
-# mimx = MinimaxTree(4, b, 0, True)
-# x2 = time.time()
-# print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
 x1 = time.time()
-mimx2 = MinimaxTree(1, b, 0, True)
+mimx = MinimaxTree(4, b, 0, False)
+x2 = time.time()
+print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
+x1 = time.time()
+mimx2 = MinimaxTree(10, b, 0, True)
 x2 = time.time()
 print(f"Size: {mimx2.size}\t\tTime: {x2 - x1}")
-print(mimx2.root.score)
-for i in mimx2.root.children:
-    print(i.score, end="\t")
+# print(mimx2.root.score)
+# for i in mimx2.root.children:
+#     print(i.score, end="\t")
