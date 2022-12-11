@@ -20,7 +20,7 @@ class Node():
         else: self.score = float('inf')
         self.children = []
         self.state = state
-
+        
     def addChild(self, state: Board):
         n = Node(state, self)
         self.children.append(n)
@@ -55,7 +55,6 @@ class MinimaxTree():
         stack.append(self.root)
         current: Node = None
         while stack:
-            # print('working...')
             current = stack.pop()
             if self.prunning and current.parent is not None: current.getPrunningValues()
             board = current.state
@@ -76,11 +75,11 @@ class MinimaxTree():
                 t = stack.pop()
                 stack.append(t)
             
-            if t.depth <= current.depth:
-                diff = (current.depth - t.depth) + 1
-                for i in range(diff):
-                    self.passScore(current)
-                    current = current.parent
+                if t.depth <= current.depth:
+                    diff = (current.depth - t.depth) + 1
+                    for i in range(diff):
+                        self.passScore(current)
+                        current = current.parent
              
         while current.parent is not None:
             self.passScore(current)
@@ -99,11 +98,14 @@ class MinimaxTree():
 
 b = Board()
 b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+# x1 = time.time()
+# mimx = MinimaxTree(4, b, 0, True)
+# x2 = time.time()
+# print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
 x1 = time.time()
-mimx = MinimaxTree(6, b, 0, False)
-x2 = time.time()
-print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
-x1 = time.time()
-mimx2 = MinimaxTree(6, b, 0, True)
+mimx2 = MinimaxTree(1, b, 0, True)
 x2 = time.time()
 print(f"Size: {mimx2.size}\t\tTime: {x2 - x1}")
+print(mimx2.root.score)
+for i in mimx2.root.children:
+    print(i.score, end="\t")

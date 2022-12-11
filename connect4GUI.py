@@ -3,10 +3,14 @@ from PIL import Image, ImageTk
 from board import Board
 
 class Connect4GUI():
-    def __init__(self, board: Board) -> None:
+    def __init__(self, human: bool, player: int) -> None:
         self.root = Tk()
         self.root.title("Connect 4 game")
         self.root.geometry("1000x750")
+
+        self.player = player
+        self.ai = (player + 1) % 2
+        # self.ai_player = ai_player
 
         im = ImageTk.PhotoImage(Image.open("board.png"))
         Label(self.root, image = im).place(relx = 0.15, rely = 0.15)
@@ -17,8 +21,9 @@ class Connect4GUI():
         self.c.create_image(400,320,image=im)
         self.c.place(relx = 0.13, rely = 0.15, relwidth = 0.84, relheight= 0.84)
         
-        for i in range(1, 8):
-            self.root.bind(str(i), self.addPiece)
+        if human:
+            for i in range(1, 8):
+                self.root.bind(str(i), self.callAddPiece)
 
         self.pieces_in_columns = [0,0,0,0,0,0,0]
         self.rows_positions = {5: 79, 4: 171, 3: 274, 2: 364, 1: 461, 0: 554}
@@ -27,6 +32,10 @@ class Connect4GUI():
         self.board = Board()
 
         self.root.mainloop()
+
+    def callAddPiece(self, num):
+        if self.player == self.board.turn:
+            self.addPiece(num)
 
     def addPiece(self, column_num):
         if self.board.end: return None
@@ -56,5 +65,4 @@ class Connect4GUI():
             Label(self.root, text = f"\tPlayer1: {points[0]}\t\t\tPlayer2: {points[1]}", 
             fg="black", font=("Helvetica", 20)).place(relx=0.1, rely=0.08)
 
-
-Connect4GUI(Board())
+# Connect4GUI(True, 0)
