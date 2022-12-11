@@ -51,6 +51,11 @@ class MinimaxTree():
     def calculateLeafNodeScore(self, node: Node):
         board = node.state
         columns = [i.copy() for i in board.columns]
+        for column in columns:
+            if len(column) < 6:
+                x = len(column)
+                for i in range(0, 6 - x):
+                    column.append(2)
                     
         # print(self.num, ":", end = " ")
         node.score = self.getColumnHeurstic(columns)
@@ -184,12 +189,12 @@ class MinimaxTree():
 if __name__ == "__main__":
     b = Board()
     b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+    # x1 = time.time()
+    # mimx = MinimaxTree(4, b, 0, False)
+    # x2 = time.time()
+    # print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
     x1 = time.time()
-    mimx = MinimaxTree(4, b, 0, False)
-    x2 = time.time()
-    print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
-    x1 = time.time()
-    mimx2 = MinimaxTree(10, b, 0, True)
+    mimx2 = MinimaxTree(6, b, 0, True)
     x2 = time.time()
     print(f"Size: {mimx2.size}\t\tTime: {x2 - x1}")
     # print(mimx2.root.score)

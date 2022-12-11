@@ -39,8 +39,12 @@ class Connect4GUI():
 
     def nextTurn(self):
         turn = self.board.turn
-        if turn == 0: self.addPiece(self.ai_player.decision(self.board))
-        if turn == 1: self.addPiece(self.ai_player2.decision(self.board))
+        if turn == 0:
+            print(self.ai_player.k)
+            self.addPiece(self.ai_player.decision(self.board))
+        if turn == 1:
+            print(self.ai_player2.k)
+            self.addPiece(self.ai_player2.decision(self.board))
 
     def addAIAgent(self, k: int, prunning: bool):
         self.ai_player2 = Connect4AIPlayer(k, prunning, self.player)
