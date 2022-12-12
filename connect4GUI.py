@@ -73,8 +73,9 @@ class Connect4GUI():
             self.addPiece(num)
         x = self.ai_player.decision(self.board.copy())
         self.thinking_tree = self.ai_player.last_turn_tree
-        if self.ai_player.k <= 4: self.root.after(1000, partial(self.addPiece, x))
-        else: self.addPiece(x)
+
+        self.root.after(1000, partial(self.addPiece, x))
+
 
     def addPiece(self, column_num):
         if self.board.end: return None
