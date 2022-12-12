@@ -46,7 +46,18 @@ class MinimaxTree():
             (self.player + 1) % 2: {2: -25, 3: -35, 4: -100}
         }
         # self.num = 1
+        self.time = dict()
         self.constructTree()
+
+    def timer(func):
+        def timed(*args):
+            t1 = time.time()
+            x = func(*args)
+            t2 = time.time()
+            if args[0].time.get(func.__name__) is None: args[0].time[func.__name__] = 0
+            args[0].time[func.__name__] += t2 - t1
+            return x
+        return timed
         
     def calculateLeafNodeScore(self, node: Node):
         board = node.state
@@ -113,6 +124,7 @@ class MinimaxTree():
                 node.parent.score = node.score
                 if self.prunning and node.alpha < node.parent.beta: node.parent.beta = node.alpha
 
+    @timer
     def getColumnHeurstic(self, columns):
         score = 0
         for column in columns:
@@ -132,6 +144,7 @@ class MinimaxTree():
         # print("|", end="")
         return score
 
+    @timer
     def getRowHeurstic(self, c):
         rows = list(zip(*c))
         score = 0
@@ -152,6 +165,7 @@ class MinimaxTree():
         # print("|", end="")
         return score
 
+    @timer
     def getDiagonalHeurstic(self, c):
         score = 0
         for index in range(0, 4):
@@ -194,9 +208,11 @@ if __name__ == "__main__":
     # x2 = time.time()
     # print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
     x1 = time.time()
-    mimx2 = MinimaxTree(6, b, 0, True)
+    mimx2 = MinimaxTree(6, b, 0, False)
     x2 = time.time()
     print(f"Size: {mimx2.size}\t\tTime: {x2 - x1}")
+    for key, value in mimx2.time.items():
+        print(f"{key} total time: {round(value, 3)}")
     # print(mimx2.root.score)
     # for i in mimx2.root.children:
     #     print(i.score, end="\t")
