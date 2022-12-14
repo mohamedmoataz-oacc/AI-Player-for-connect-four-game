@@ -93,8 +93,8 @@ class MinimaxTree():
                 bcopy.addPiece(move)
                 p = current.addChild(bcopy, move)
                 self.size += 1
-                if p.depth < self.tree_depth: stack.append(p)
-                elif p.depth == self.tree_depth:
+                if p.depth < self.tree_depth and not bcopy.end: stack.append(p)
+                elif p.depth == self.tree_depth or bcopy.end:
                     self.calculateLeafNodeScore(p)
                     self.passScore(p)
                     if self.prunning and current.alpha > current.beta: break

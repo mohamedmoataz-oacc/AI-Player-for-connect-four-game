@@ -9,7 +9,7 @@ class Connect4GUI():
     def __init__(self, human: bool, player: int, k: int, prunning: bool) -> None:
         self.root = Tk()
         self.root.title("Connect 4 game")
-        self.root.geometry("1500x750")
+        self.root.geometry("1300x750")
 
         self.player = player
         self.ai = (player + 1) % 2
@@ -40,9 +40,7 @@ class Connect4GUI():
 
         self.board = Board()
         if self.ai == 0 and human:
-            x = self.ai_player.decision(self.board.copy())
-            self.thinking_tree = self.ai_player.last_turn_tree
-            self.addPiece(x)
+            self.root.after(1000, partial(self.aiThink, self.board))
 
         if human: self.root.mainloop()
 
@@ -71,10 +69,13 @@ class Connect4GUI():
         if pieces_in_column == 6: return None
         if self.player == self.board.turn:
             self.addPiece(num)
+
+        self.root.after(1000, partial(self.aiThink, self.board))
+
+    def aiThink(self, board):
         x = self.ai_player.decision(self.board.copy())
         self.thinking_tree = self.ai_player.last_turn_tree
-
-        self.root.after(1000, partial(self.addPiece, x))
+        self.addPiece(x)
 
 
     def addPiece(self, column_num):
