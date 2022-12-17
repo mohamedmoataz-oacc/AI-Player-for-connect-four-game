@@ -11,7 +11,7 @@ class Connect4GUI():
         self.root.title("Connect 4 game")
         self.root.geometry("1300x750")
 
-        self.player = player
+        self.player = player # determines wich player is the human (or the 1st ai player if we choose ai vs ai)
         self.ai = (player + 1) % 2
         self.ai_player = Connect4AIPlayer(k, prunning, self.ai)
         self.thinking_tree = None

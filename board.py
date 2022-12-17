@@ -1,34 +1,57 @@
 class Board():
     def __init__(self) -> None:
-        self.columns = [[],[],[],[],[],[],[]]
-        self.turn = 0
-        self.end = False
-        self.players = {0: 0, 1: 0}
-
+        self.columns = [[],[],[],[],[],[],[]] # The columns of the board
+        self.rows = []
+        self.pieces_in_columns = [0,0,0,0,0,0,0]
+        self.turn = 0 # The player who has the turn
+        self.end = False # To know if the game ended
+        self.players = {0: 0, 1: 0} # The points of each player
 
     def generatePossibleMoves(self) -> list[int]:
+        """
+        A method that generates all the possible moves.
+        Returns: a list of integers.
+        """
         return [i for i in range(0,7) if len(self.columns[i]) < 6]
 
-    def addPiece(self, column_num) -> bool:
+    def addPiece(self, column_num):
+        """
+        Adds a piece to the board if the board was not full.
+        """
         if column_num < 0 or column_num > 6 or not isinstance(column_num, int) or \
             column_num not in self.generatePossibleMoves():
             return None
-        if self.turn == 0: self.columns[column_num].append(0)
-        if self.turn == 1: self.columns[column_num].append(1)
-        return self.switchTurn()
+        
+        x = self.pieces_in_columns[column_num]
+        if x + 1 == max(self.pieces_in_columns) + 1:
+            self.rows.append([2,2,2,2,2,2,2])
+        
+        self.columns[column_num].append(self.turn)
+        self.rows[self.pieces_in_columns[column_num]][column_num] = self.turn
+        self.pieces_in_columns[column_num] += 1
+        self.switchTurn()
 
-    def switchTurn(self) -> bool:
+    def switchTurn(self):
+        """
+        Switches the turn between players.
+        """
         for i in self.columns:
             if len(i) < 6:
                 self.turn = (self.turn + 1) % 2
                 return True
         self.end = True
-        return False
 
     def copy(self):
+        """
+        Used to make a copy of the board.
+        """
         columns = [column.copy() for column in self.columns]
+        rows = [row.copy() for row in self.rows]
+        pieces = self.pieces_in_columns.copy()
         b = Board()
         b.columns = columns
+        b.rows = rows
+        b.pieces_in_columns = pieces
         b.turn = self.turn
         b.end = self.end
         b.players = self.players.copy()
@@ -51,8 +74,7 @@ class Board():
                         # print(f"P{number} point from column starting at ({c.index(column)}, {i-3}) and ending at ({c.index(column)}, {i})")
 
     def checkRowPoints(self, c):
-        rows = list(zip(*c))
-        for row in rows:
+        for row in self.rows:
             number = row[0]
             counter = 1
             for i in range(1,7):
@@ -83,12 +105,10 @@ class Board():
                         # print(f"P{column[i]} point from forward diagonal starting at (c{index}, r{i}) and ending at (c{index+3}, r{i-3})")
 
     def checkWinner(self) -> list[int]:
+        """
+        Checks the points of every player.
+        """
         columns = [i.copy() for i in self.columns]
-        for column in columns:
-            if len(column) < 6:
-                x = len(column)
-                for i in range(0, 6 - x):
-                    column.append(2)
 
         # self.printBoard()
         self.players[0], self.players[1] = 0, 0  
@@ -98,14 +118,18 @@ class Board():
         return [self.players[0], self.players[1]]
 
     def printBoard(self):
-        columns = [i.copy() for i in self.columns]
-        for column in columns:
-            if len(column) < 6:
-                x = len(column)
-                for i in range(0, 6 - x):
-                    column.append(2)
-
-        y = list(zip(*columns))
+        y = [row.copy() for row in self.rows]
         y.reverse()
         for i in y:
             print(i)
+
+if __name__ == "__main__":
+    b = Board()
+    b.addPiece(3)
+    b.addPiece(2)
+    b.addPiece(4)
+    b.addPiece(5)
+    b.addPiece(3)
+    b.addPiece(4)
+    b.addPiece(1)
+    b.printBoard()
