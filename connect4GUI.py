@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from board import Board
 from connect4AIPlayer import Connect4AIPlayer
 from treeVisualization import TreeVisualizer
+from minimaxTree import MinimaxTree
 
 class Connect4GUI():
     def __init__(self, human: bool, player: int, k: int, prunning: bool) -> None:
@@ -14,7 +15,7 @@ class Connect4GUI():
         self.player = player # determines wich player is the human (or the 1st ai player if we choose ai vs ai)
         self.ai = (player + 1) % 2
         self.ai_player = Connect4AIPlayer(k, prunning, self.ai)
-        self.thinking_tree = None
+        self.thinking_state = None
         
         self.yellow = ImageTk.PhotoImage(Image.open("yellow.png"))
         self.red = ImageTk.PhotoImage(Image.open("red.png"))
@@ -48,11 +49,21 @@ class Connect4GUI():
         turn = self.board.turn
         if turn == 0:
             x = self.ai_player.decision(self.board.copy())
-            self.thinking_tree = self.ai_player.last_turn_tree
+            self.thinking_state = (
+                self.ai_player.k,
+                self.ai_player.last_turn_state,
+                self.ai_player.player,
+                self.ai_player.prunning
+            )
             self.addPiece(x)
         if turn == 1:
             x = self.ai_player2.decision(self.board.copy())
-            self.thinking_tree = self.ai_player2.last_turn_tree
+            self.thinking_state = (
+                self.ai_player2.k,
+                self.ai_player2.last_turn_state,
+                self.ai_player2.player,
+                self.ai_player2.prunning
+            )
             self.addPiece(x)
 
     def addAIAgent(self, k: int, prunning: bool):
@@ -60,7 +71,12 @@ class Connect4GUI():
         im = ImageTk.PhotoImage(Image.open("board.png"))
         self.c.create_image(400,320, image=im)
         x = self.ai_player.decision(self.board.copy())
-        self.thinking_tree = self.ai_player.last_turn_tree
+        self.thinking_state = (
+            self.ai_player.k,
+            self.ai_player.last_turn_state,
+            self.ai_player.player,
+            self.ai_player.prunning
+        )
         self.addPiece(x)
         self.root.mainloop()
 
@@ -73,8 +89,14 @@ class Connect4GUI():
         self.root.after(1000, partial(self.aiThink, self.board))
 
     def aiThink(self, board):
+        self.board.copy().printBoard()
         x = self.ai_player.decision(self.board.copy())
-        self.thinking_tree = self.ai_player.last_turn_tree
+        self.thinking_state = (
+            self.ai_player.k,
+            self.ai_player.last_turn_state,
+            self.ai_player.player,
+            self.ai_player.prunning
+        )
         self.addPiece(x)
 
 
@@ -107,5 +129,5 @@ class Connect4GUI():
             fg="black", font=("Helvetica", 20)).place(relx=0.1, rely=0.08)
 
     def visualizeTree(self):
-        if self.thinking_tree is not None:
-            TreeVisualizer(self.thinking_tree)
+        if self.thinking_state is not None:
+            TreeVisualizer(MinimaxTree(*self.thinking_state))

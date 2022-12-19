@@ -6,17 +6,10 @@ class Connect4AIPlayer():
         self.k = k
         self.prunning = prunning
         self.player = player
-        self.last_turn_tree = None
+        self.last_turn_state = None
 
     def decision(self, state: Board):
-        tree = MinimaxTree(self.k, state, self.player, self.prunning)
-        self.last_turn_tree = tree
-        score = tree.root.score
-        children = tree.root.children
-        move = 0
-        for i in children:
-            if i.score == score:
-                move = i.move
-                break
-        return move
+        tree = MinimaxTree(self.k, state, self.player, self.prunning, False)
+        self.last_turn_state = state
+        return tree.root.move
         

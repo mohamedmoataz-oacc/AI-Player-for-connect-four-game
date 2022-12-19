@@ -122,6 +122,11 @@ class Board():
         y.reverse()
         for i in y:
             print(i)
+        print("")
+        columns = [column.copy() for column in self.columns]
+        for i in columns:
+            print(i)
+        print("")
 
 if __name__ == "__main__":
     b = Board()

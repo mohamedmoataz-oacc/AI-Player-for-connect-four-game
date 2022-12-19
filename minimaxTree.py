@@ -1,6 +1,7 @@
 import time
 from board import Board
 from collections import deque
+from multiprocessing import Process, Queue
 
 class Node():
     def __init__(self, state: Board, parent):
@@ -35,7 +36,7 @@ class Node():
 
 
 class MinimaxTree():
-    def __init__(self, tree_depth, board: Board, player: int, prunning: bool):
+    def __init__(self, tree_depth, board: Board, player: int, prunning: bool, tree: bool = True):
         self.root: Node = Node(board, None)
         self.size: int = 1
         self.tree_depth: int = tree_depth # maximum depth for the tree
@@ -46,7 +47,13 @@ class MinimaxTree():
             (self.player + 1) % 2: {2: -25, 3: -35, 4: -100}
         }
         self.time = dict()
-        self.constructTree()
+        self.tree = tree
+        self.q = Queue()
+        scores = self.constructTree()
+        print("")
+        print(f"Root score: {self.root.score}")
+        for i in range(len(scores)):
+            print(f"Child{i+1} = {scores[i]}")
 
     def timer(func):
         def timed(*args):
@@ -72,12 +79,10 @@ class MinimaxTree():
             if node.node_type == 0: node.alpha = node.score
             elif node.parent.node_type == 1:  node.beta = node.score
         
-    def constructTree(self):
-        """
-        Constructs the minimax tree using preorder tree traversal.
-        """
+    def threadIt(self, node: Node):
+        size = 1
         stack = deque()
-        stack.append(self.root)
+        stack.append(node)
         current: Node = None # the node containinhg the board state we are currently generating its children.
 
         while stack:
@@ -90,7 +95,8 @@ class MinimaxTree():
                 bcopy = board.copy()
                 bcopy.addPiece(move)
                 p = current.addChild(bcopy, move)
-                self.size += 1
+                if self.tree: self.size += 1
+                else: size += 1
                 if p.depth < self.tree_depth and not bcopy.end: stack.append(p)
                 elif p.depth == self.tree_depth or bcopy.end:
                     self.calculateLeafNodeScore(p)
@@ -118,6 +124,39 @@ class MinimaxTree():
         while current.parent is not None:
             self.passScore(current)
             current = current.parent
+        self.q.put((node.score, size, node.move))
+
+    def constructTree(self):
+        """
+        Constructs the minimax tree using preorder tree traversal.
+        """
+        scores = []
+        if self.tree:
+            self.threadIt(self.root)
+        else:
+            moves = self.root.state.generatePossibleMoves()
+            ts = []
+            for move in moves:
+                bcopy = self.root.state.copy()
+                bcopy.addPiece(move)
+                p = self.root.addChild(bcopy, move)
+                t = Process(target = self.threadIt, args = (p,))
+                t.start()
+                ts.append(t)
+            for t in ts:
+                t.join()
+            moves = []
+            while not self.q.empty():
+                s = self.q.get()
+                scores.append(s[0])
+                moves.append(s[2])
+                self.size += s[1]
+            self.root.score = max(scores)
+            for i in range(len(scores)):
+                if scores[i] == self.root.score:
+                    self.root.move = moves[i]
+                    break
+        return scores
 
     def passScore(self, node):
         if node.parent.node_type == 0:
@@ -193,16 +232,11 @@ class MinimaxTree():
 if __name__ == "__main__":
     b = Board()
     b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
-    # x1 = time.time()
-    # mimx = MinimaxTree(4, b, 0, False)
-    # x2 = time.time()
-    # print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
     x1 = time.time()
-    mimx2 = MinimaxTree(7, b, 0, True)
+    mimx = MinimaxTree(6, b, 0, False, False)
     x2 = time.time()
-    print(f"Size: {mimx2.size}\t\tTime: {x2 - x1}")
-    for key, value in mimx2.time.items():
-        print(f"{key} total time: {round(value, 3)}")
-    # print(mimx2.root.score)
-    # for i in mimx2.root.children:
-    #     print(i.score, end="\t")
+    print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
+    print("")
+    print(f"Root score: {mimx.root.score}")
+    # for key, value in mimx.time.items():
+    #     print(f"{key} total time: {round(value, 3)}")

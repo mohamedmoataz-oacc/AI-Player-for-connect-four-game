@@ -1,8 +1,14 @@
 from tkinter import *
 from connect4GUI import Connect4GUI
 
+x = ''
+with open('x.txt', 'r') as file:
+    x = file.readline()
 class optionsGUI():
-    def __init__(self) -> None:
+    def __init__(self, x1) -> None:
+        if x1 == '1': return None
+        with open('x.txt', 'w') as file:
+            file.write('1')
         self.master = Tk()
         self.master.title("Connect 4 game")
         self.master.geometry("650x300")
@@ -41,7 +47,10 @@ class optionsGUI():
         self.k2.place(relx = 0.65, relwidth = 0.1, rely = 0.4)
 
     def start(self):
-        if self.var.get() != 0: self.master.destroy()
+        if self.var.get() != 0:
+            self.master.destroy()
+            global x
+            x = True
         if self.var.get() == 1:
             if self.name_var.get() != '': Connect4GUI(True, 0, int(self.name_var.get()), self.p1var.get())
         elif self.var.get() == 2:
@@ -50,5 +59,7 @@ class optionsGUI():
             if self.name_var.get() != '' and self.name_var2.get() != '':
                 c4g = Connect4GUI(False, 1, int(self.name_var.get()), self.p1var.get())
                 c4g.addAIAgent(int(self.name_var2.get()), self.p2var.get())
+        with open('x.txt', 'w') as file:
+            file.write('0')
 
-optionsGUI()
+optionsGUI(x)
