@@ -47,13 +47,14 @@ class MinimaxTree():
             (self.player + 1) % 2: {2: -25, 3: -35, 4: -100}
         }
         self.time = dict()
+        self.num = 1
         self.tree = tree
         self.q = Queue()
         scores = self.constructTree()
-        print("")
-        print(f"Root score: {self.root.score}")
-        for i in range(len(scores)):
-            print(f"Child{i+1} = {scores[i]}")
+        # print("")
+        # print(f"Root score: {self.root.score}")
+        # for i in range(len(scores)):
+        #     print(f"Child{i+1} = {scores[i]}")
 
     def timer(func):
         def timed(*args):
@@ -70,10 +71,19 @@ class MinimaxTree():
         Calculates a leaf node's score, alpha and beta values.
         """
         board = node.state
+        columns = [i.copy() for i in board.columns]
+        for column in columns:
+            if len(column) < 6:
+                x = len(column)
+                for i in range(0, 6 - x):
+                    column.append(2)
                     
+        # print(self.num, ":", end = " ")
         node.score = self.getColumnHeurstic(board.columns)
         node.score += self.getRowHeurstic(board.rows)
-        node.score += self.getDiagonalHeurstic(board.columns)
+        node.score += self.getDiagonalHeurstic(columns)
+        self.num += 1
+        # print("")
 
         if self.prunning:
             if node.node_type == 0: node.alpha = node.score
@@ -174,69 +184,69 @@ class MinimaxTree():
 
         if zeros != 0 and ones != 0: return 0
         elif zeros > 1:
+            # print(self.heuristic_points[0][zeros], end=", ")
             return self.heuristic_points[0][zeros]
         elif ones > 1:
+            # print(self.heuristic_points[1][ones], end=", ")
             return self.heuristic_points[1][ones]
         else: return 0
 
     @timer
     def getColumnHeurstic(self, columns):
         score = 0
+        y = 0
         for column in columns:
+            y += 1
             if len(column) >= 4: x = 7
             else: x = len(column) + 3
 
             for i in range(4, x):
                 numbers = column[i-4:i]
                 score += self.checkWindow(numbers)
+        # print("|", end="")
         return score
 
     @timer
     def getRowHeurstic(self, rows):
         score = 0
+        x = 0
         for row in rows:
+            x+=1
             for i in range(4,8):
                 numbers = row[i-4:i]
                 score += self.checkWindow(numbers)
+        # print("|", end="")
         return score
 
     @timer
     def getDiagonalHeurstic(self, columns):
         score = 0
         for index in range(0, 4):
-            if len(columns[index]) == 0: continue
-            if len(columns[index]) >= 4: x = 3
-            else: x = len(columns[index])
-
-            for i in range(0, x):
-                window = []
-                for j in range(0, 4):
-                    if len(columns[index + j]) - 1 >= i + j:
-                        window.append(columns[index + j][i + j])
+            for i in range(0, 3):
+                window = [columns[index + j][i + j] for j in range(0, 4)]
                 score += self.checkWindow(window)
+        # print("|", end="")
 
         for index in range(6, 2, -1):
-            if len(columns[index]) == 0: continue
-            if len(columns[index]) >= 4: x = 3
-            else: x = len(columns[index])
-
-            for i in range(0, x):
-                window = []
-                for j in range(0, 4):
-                    if len(columns[index - j]) - 1 >= i + j:
-                        window.append(columns[index - j][i + j])
+            for i in range(0, 3):
+                window = [columns[index - j][i + j] for j in range(0, 4)]
                 score += self.checkWindow(window)
+        # print("|", end="")
         return score
 
 
 if __name__ == "__main__":
     b = Board()
-    b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+    b.columns = [[0,1,0,1,0], [0], [1,0,1], [1,1,0,1,0,0], [0,1,1,1,0,0], [0,1,0,1], [0]]
+    b.rows = [[0,0,1,1,0,0,0], [1,2,0,1,1,1,2], [0,2,1,0,1,0,2], [1,2,2,1,1,1,2], [0,2,2,0,0,2,2], [2,2,2,0,0,2,2]]
+    b.pieces_in_columns = [5,1,3,6,6,4,1]
+    b.turn = 1
     x1 = time.time()
-    mimx = MinimaxTree(6, b, 0, False, False)
+    mimx = MinimaxTree(1, b, 1, False)
     x2 = time.time()
     print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
     print("")
     print(f"Root score: {mimx.root.score}")
+    # b.printBoard()
     # for key, value in mimx.time.items():
     #     print(f"{key} total time: {round(value, 3)}")

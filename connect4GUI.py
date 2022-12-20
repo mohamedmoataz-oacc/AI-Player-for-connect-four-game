@@ -89,7 +89,6 @@ class Connect4GUI():
         self.root.after(1000, partial(self.aiThink, self.board))
 
     def aiThink(self, board):
-        self.board.copy().printBoard()
         x = self.ai_player.decision(self.board.copy())
         self.thinking_state = (
             self.ai_player.k,
