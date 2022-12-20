@@ -11,5 +11,5 @@ class Connect4AIPlayer():
     def decision(self, state: Board):
         tree = MinimaxTree(self.k, state, self.player, self.prunning, False)
         self.last_turn_state = state
-        return tree.root.move
+        return [tree.root.move, round(tree.time, 2), tree.size]
         

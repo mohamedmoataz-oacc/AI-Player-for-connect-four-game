@@ -21,6 +21,8 @@ class Connect4GUI():
         self.red = ImageTk.PhotoImage(Image.open("red.png"))
         self.c = Canvas(self.root)
         self.c.place(relx = 0.13, rely = 0.15, relwidth = 0.84, relheight= 0.84)
+        self.time_label: Label = Label(self.root, text='', font=("Helvetica", 14))
+        self.time_label.place(relx=0.75, rely=0.25)
         if human:
             im = ImageTk.PhotoImage(Image.open("board.png"))
             self.c.create_image(400,320, image=im)
@@ -47,8 +49,13 @@ class Connect4GUI():
 
     def nextTurn(self):
         turn = self.board.turn
+        self.time_label.config(text='Time:')
+        time = 0
         if turn == 0:
             x = self.ai_player.decision(self.board.copy())
+            time = x[1]
+            size = x[2]
+            x = x[0]
             self.thinking_state = (
                 self.ai_player.k,
                 self.ai_player.last_turn_state,
@@ -58,6 +65,9 @@ class Connect4GUI():
             self.addPiece(x)
         if turn == 1:
             x = self.ai_player2.decision(self.board.copy())
+            time = x[1]
+            size = x[2]
+            x = x[0]
             self.thinking_state = (
                 self.ai_player2.k,
                 self.ai_player2.last_turn_state,
@@ -65,12 +75,16 @@ class Connect4GUI():
                 self.ai_player2.prunning
             )
             self.addPiece(x)
+        self.time_label.config(text=f'Time: {time}\nSize: {size}')
 
     def addAIAgent(self, k: int, prunning: bool):
         self.ai_player2 = Connect4AIPlayer(k, prunning, self.player)
         im = ImageTk.PhotoImage(Image.open("board.png"))
         self.c.create_image(400,320, image=im)
         x = self.ai_player.decision(self.board.copy())
+        time = x[1]
+        size = x[2]
+        x = x[0]
         self.thinking_state = (
             self.ai_player.k,
             self.ai_player.last_turn_state,
@@ -78,6 +92,7 @@ class Connect4GUI():
             self.ai_player.prunning
         )
         self.addPiece(x)
+        self.time_label.config(text=f'Time: {time}\nSize: {size}')
         self.root.mainloop()
 
     def callAddPiece(self, num):
@@ -90,6 +105,9 @@ class Connect4GUI():
 
     def aiThink(self, board):
         x = self.ai_player.decision(self.board.copy())
+        time = x[1]
+        size = x[2]
+        x = x[0]
         self.thinking_state = (
             self.ai_player.k,
             self.ai_player.last_turn_state,
@@ -97,6 +115,7 @@ class Connect4GUI():
             self.ai_player.prunning
         )
         self.addPiece(x)
+        self.time_label.config(text=f'Time: {time}\nSize: {size}')
 
 
     def addPiece(self, column_num):

@@ -50,11 +50,10 @@ class MinimaxTree():
         self.num = 1
         self.tree = tree
         self.q = Queue()
-        scores = self.constructTree()
-        # print("")
-        # print(f"Root score: {self.root.score}")
-        # for i in range(len(scores)):
-        #     print(f"Child{i+1} = {scores[i]}")
+        x1 = time.time()
+        self.constructTree()
+        x2 = time.time()
+        self.time = x2 - x1
 
     def timer(func):
         def timed(*args):
@@ -93,7 +92,7 @@ class MinimaxTree():
         size = 1
         stack = deque()
         stack.append(node)
-        current: Node = None # the node containinhg the board state we are currently generating its children.
+        current: Node = None # the node containing the board state we are currently generating its children.
 
         while stack:
             current = stack.pop()
@@ -166,7 +165,6 @@ class MinimaxTree():
                 if scores[i] == self.root.score:
                     self.root.move = moves[i]
                     break
-        return scores
 
     def passScore(self, node):
         if node.parent.node_type == 0:
