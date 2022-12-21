@@ -104,8 +104,8 @@ class MinimaxTree():
                 bcopy = board.copy()
                 bcopy.addPiece(move)
                 p = current.addChild(bcopy, move)
-                if self.tree: self.size += 1
-                else: size += 1
+                self.size += 1
+                if not self.tree: size += 1
                 if p.depth < self.tree_depth and not bcopy.end: stack.append(p)
                 elif p.depth == self.tree_depth or bcopy.end:
                     self.calculateLeafNodeScore(p)
@@ -142,6 +142,12 @@ class MinimaxTree():
         scores = []
         if self.tree:
             self.threadIt(self.root)
+        elif self.tree_depth == 1:
+            self.threadIt(self.root)
+            for child in self.root.children:
+                if child.score == self.root.score:
+                    self.root.move = child.move
+                    break
         else:
             moves = self.root.state.generatePossibleMoves()
             ts = []
