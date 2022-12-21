@@ -12,7 +12,8 @@ class Board():
         A method that generates all the possible moves.
         Returns: a list of integers.
         """
-        return [i for i in range(0,7) if len(self.columns[i]) < 6]
+        moves = [3, 4, 2, 5, 1, 6, 0]
+        return [i for i in moves if len(self.columns[i]) < 6]
 
     def addPiece(self, column_num):
         """

@@ -39,6 +39,8 @@ class MinimaxTree():
     def __init__(self, tree_depth, board: Board, player: int, prunning: bool, tree: bool = True):
         self.root: Node = Node(board, None)
         self.size: int = 1
+        self.psize_q = Queue()
+        self.psize_q.put({'size': 1})
         self.tree_depth: int = tree_depth # maximum depth for the tree
         self.player: int = player # which player is the ai (0 or 1)
         self.prunning: bool = prunning
@@ -89,7 +91,14 @@ class MinimaxTree():
             elif node.parent.node_type == 1:  node.beta = node.score
         
     def threadIt(self, node: Node):
-        size = 1
+        if node.depth == self.tree_depth:
+            self.calculateLeafNodeScore(node)
+            self.passScore(node)
+            size_dict = self.psize_q.get()
+            size_dict['size'] += 1
+            self.psize_q.put(size_dict)
+            self.q.put((node.score, node.move))
+            return
         stack = deque()
         stack.append(node)
         current: Node = None # the node containing the board state we are currently generating its children.
@@ -105,7 +114,10 @@ class MinimaxTree():
                 bcopy.addPiece(move)
                 p = current.addChild(bcopy, move)
                 if self.tree: self.size += 1
-                else: size += 1
+                else:
+                    size_dict = self.psize_q.get()
+                    size_dict['size'] += 1
+                    self.psize_q.put(size_dict)
                 if p.depth < self.tree_depth and not bcopy.end: stack.append(p)
                 elif p.depth == self.tree_depth or bcopy.end:
                     self.calculateLeafNodeScore(p)
@@ -133,7 +145,7 @@ class MinimaxTree():
         while current.parent is not None:
             self.passScore(current)
             current = current.parent
-        self.q.put((node.score, size, node.move))
+        self.q.put((node.score, node.move))
 
     def constructTree(self):
         """
@@ -144,6 +156,9 @@ class MinimaxTree():
             self.threadIt(self.root)
         else:
             moves = self.root.state.generatePossibleMoves()
+            if len(moves) == 1:
+                self.root.move = moves[0]
+                return
             ts = []
             for move in moves:
                 bcopy = self.root.state.copy()
@@ -158,8 +173,8 @@ class MinimaxTree():
             while not self.q.empty():
                 s = self.q.get()
                 scores.append(s[0])
-                moves.append(s[2])
-                self.size += s[1]
+                moves.append(s[1])
+            self.size = self.psize_q.get()['size']
             self.root.score = max(scores)
             for i in range(len(scores)):
                 if scores[i] == self.root.score:
@@ -235,12 +250,12 @@ class MinimaxTree():
 
 if __name__ == "__main__":
     b = Board()
-    b.columns = [[0,1,0,1,0], [0], [1,0,1], [1,1,0,1,0,0], [0,1,1,1,0,0], [0,1,0,1], [0]]
-    b.rows = [[0,0,1,1,0,0,0], [1,2,0,1,1,1,2], [0,2,1,0,1,0,2], [1,2,2,1,1,1,2], [0,2,2,0,0,2,2], [2,2,2,0,0,2,2]]
-    b.pieces_in_columns = [5,1,3,6,6,4,1]
-    b.turn = 1
+    b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+    b.rows = [[0,1,0,1,1,0,1], [0,0,1,0,1,1,0], [0,1,2,0,2,1,0], [2,1,2,2,2,2,2], [2,2,2,2,2,2,2], [2,2,2,2,2,2,2]]
+    b.pieces_in_columns = [3,4,2,3,2,3,3]
+    # b.turn = 1
     x1 = time.time()
-    mimx = MinimaxTree(1, b, 1, False)
+    mimx = MinimaxTree(6, b, 1, True)
     x2 = time.time()
     print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
     print("")
