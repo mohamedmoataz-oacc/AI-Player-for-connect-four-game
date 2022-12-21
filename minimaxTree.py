@@ -150,6 +150,9 @@ class MinimaxTree():
                     break
         else:
             moves = self.root.state.generatePossibleMoves()
+            if len(moves) == 1:
+                self.root.move = moves[0]
+                return
             ts = []
             for move in moves:
                 bcopy = self.root.state.copy()
@@ -166,7 +169,8 @@ class MinimaxTree():
                 scores.append(s[0])
                 moves.append(s[2])
                 self.size += s[1]
-            self.root.score = max(scores)
+            try: self.root.score = max(scores)
+            except ValueError: self.root.score = 0
             for i in range(len(scores)):
                 if scores[i] == self.root.score:
                     self.root.move = moves[i]
@@ -241,12 +245,12 @@ class MinimaxTree():
 
 if __name__ == "__main__":
     b = Board()
-    b.columns = [[0,1,0,1,0], [0], [1,0,1], [1,1,0,1,0,0], [0,1,1,1,0,0], [0,1,0,1], [0]]
-    b.rows = [[0,0,1,1,0,0,0], [1,2,0,1,1,1,2], [0,2,1,0,1,0,2], [1,2,2,1,1,1,2], [0,2,2,0,0,2,2], [2,2,2,0,0,2,2]]
-    b.pieces_in_columns = [5,1,3,6,6,4,1]
-    b.turn = 1
+    b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+    b.rows = [[0,1,0,1,1,0,1], [0,0,1,0,1,1,0], [0,1,2,0,2,1,0], [2,1,2,2,2,2,2], [2,2,2,2,2,2,2], [2,2,2,2,2,2,2]]
+    b.pieces_in_columns = [3,4,2,3,2,3,3]
+    # b.turn = 1
     x1 = time.time()
-    mimx = MinimaxTree(1, b, 1, False)
+    mimx = MinimaxTree(6, b, 1, True)
     x2 = time.time()
     print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
     print("")
