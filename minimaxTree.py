@@ -50,6 +50,8 @@ class MinimaxTree():
         self.num = 1
         self.tree = tree
         self.q = Queue()
+        # self.pq = Queue()
+        # self.pq.put(0)
         x1 = time.time()
         self.constructTree()
         x2 = time.time()
@@ -74,9 +76,9 @@ class MinimaxTree():
         for column in columns:
             if len(column) < 6:
                 x = len(column)
-                for i in range(0, 6 - x):
+                for _ in range(0, 6 - x):
                     column.append(2)
-                    
+
         # print(self.num, ":", end = " ")
         node.score = self.getColumnHeurstic(board.columns)
         node.score += self.getRowHeurstic(board.rows)
@@ -85,8 +87,8 @@ class MinimaxTree():
         # print("")
 
         if self.prunning:
-            if node.node_type == 0: node.alpha = node.score
-            elif node.parent.node_type == 1:  node.beta = node.score
+            if node.node_type == 0: node.alpha = node.score # max node
+            elif node.node_type == 1:  node.beta = node.score # min node
         
     def threadIt(self, node: Node):
         size = 1
@@ -97,7 +99,6 @@ class MinimaxTree():
         while stack:
             current = stack.pop()
             if self.prunning and current.parent is not None: current.getPrunningValues()
-            
             board = current.state
             moves = board.generatePossibleMoves()
             for move in moves:
@@ -111,9 +112,14 @@ class MinimaxTree():
                     self.calculateLeafNodeScore(p)
                     # After calculating the score of the leaf node, we pass its score to its parent
                     self.passScore(p)
+                    # print(current.alpha, current.beta)
                     # If we are using alpha beta prunning and we find that alpha > beta,
                     # we stop adding children.
-                    if self.prunning and current.alpha > current.beta: break
+                    if self.prunning and current.alpha > current.beta:
+                        # r = self.pq.get()
+                        # r += 1
+                        # self.pq.put(r)
+                        break
 
             if stack:
                 # To view the element at the top of the stack without removing it
@@ -177,11 +183,11 @@ class MinimaxTree():
                     break
 
     def passScore(self, node):
-        if node.parent.node_type == 0:
+        if node.parent.node_type == 0: # score = float('-inf')
             if node.score > node.parent.score:
                 node.parent.score = node.score
                 if self.prunning and node.beta > node.parent.alpha: node.parent.alpha = node.beta
-        elif node.parent.node_type == 1:
+        elif node.parent.node_type == 1: # score = float('inf')
             if node.score < node.parent.score:
                 node.parent.score = node.score
                 if self.prunning and node.alpha < node.parent.beta: node.parent.beta = node.alpha
@@ -245,16 +251,22 @@ class MinimaxTree():
 
 if __name__ == "__main__":
     b = Board()
-    b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
-    b.rows = [[0,1,0,1,1,0,1], [0,0,1,0,1,1,0], [0,1,2,0,2,1,0], [2,1,2,2,2,2,2], [2,2,2,2,2,2,2], [2,2,2,2,2,2,2]]
-    b.pieces_in_columns = [3,4,2,3,2,3,3]
+    # b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+    # b.rows = [[0,1,0,1,1,0,1], [0,0,1,0,1,1,0], [0,1,2,0,2,1,0], [2,1,2,2,2,2,2], [2,2,2,2,2,2,2], [2,2,2,2,2,2,2]]
+    # b.pieces_in_columns = [3,4,2,3,2,3,3]
     # b.turn = 1
     x1 = time.time()
-    mimx = MinimaxTree(6, b, 1, True)
+    mimx = MinimaxTree(7, b, 1, True, False)
     x2 = time.time()
     print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
+    # print(f"R: {mimx.pq.get()}")
     print("")
-    print(f"Root score: {mimx.root.score}")
+    x1 = time.time()
+    mimx = MinimaxTree(7, b, 1, False, False)
+    x2 = time.time()
+    print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
+    # print(f"R: {mimx.pq.get()}")
+    print("")
     # b.printBoard()
     # for key, value in mimx.time.items():
     #     print(f"{key} total time: {round(value, 3)}")
