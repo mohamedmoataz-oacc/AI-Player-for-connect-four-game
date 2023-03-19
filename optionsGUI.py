@@ -1,6 +1,12 @@
 from tkinter import *
 from connect4GUI import Connect4GUI
 
+# The file x.txt is basically a flag used to ensure that the program doesn't run again every time
+# a new peocess is started. The file should only contain a single line with the number 0 in it for the
+# program to run. The number 0 is modified to 1 while the program is running and when the program is stopped,
+# it is modified again to 0. If it wasn't modified after the program is killed, that might indicate that
+# the program was closed incorrectly.
+
 x = ''
 with open('x.txt', 'r') as file:
     x = file.readline()

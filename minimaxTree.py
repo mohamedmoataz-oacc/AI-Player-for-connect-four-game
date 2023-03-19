@@ -49,9 +49,7 @@ class MinimaxTree():
         self.time = dict()
         self.num = 1
         self.tree = tree
-        self.q = Queue()
-        # self.pq = Queue()
-        # self.pq.put(0)
+        self.q = Queue() # A queue used to share information between processes.
         x1 = time.time()
         self.constructTree()
         x2 = time.time()
@@ -79,12 +77,10 @@ class MinimaxTree():
                 for _ in range(0, 6 - x):
                     column.append(2)
 
-        # print(self.num, ":", end = " ")
         node.score = self.getColumnHeurstic(board.columns)
         node.score += self.getRowHeurstic(board.rows)
         node.score += self.getDiagonalHeurstic(columns)
         self.num += 1
-        # print("")
 
         if self.prunning:
             if node.node_type == 0: node.alpha = node.score # max node
@@ -112,13 +108,9 @@ class MinimaxTree():
                     self.calculateLeafNodeScore(p)
                     # After calculating the score of the leaf node, we pass its score to its parent
                     self.passScore(p)
-                    # print(current.alpha, current.beta)
                     # If we are using alpha beta prunning and we find that alpha > beta,
                     # we stop adding children.
-                    if self.prunning and current.alpha > current.beta:
-                        # r = self.pq.get()
-                        # r += 1
-                        # self.pq.put(r)
+                    if self.prunning and current.alpha >= current.beta:
                         break
 
             if stack:
@@ -198,10 +190,8 @@ class MinimaxTree():
 
         if zeros != 0 and ones != 0: return 0
         elif zeros > 1:
-            # print(self.heuristic_points[0][zeros], end=", ")
             return self.heuristic_points[0][zeros]
         elif ones > 1:
-            # print(self.heuristic_points[1][ones], end=", ")
             return self.heuristic_points[1][ones]
         else: return 0
 
@@ -217,7 +207,6 @@ class MinimaxTree():
             for i in range(4, x):
                 numbers = column[i-4:i]
                 score += self.checkWindow(numbers)
-        # print("|", end="")
         return score
 
     @timer
@@ -229,7 +218,6 @@ class MinimaxTree():
             for i in range(4,8):
                 numbers = row[i-4:i]
                 score += self.checkWindow(numbers)
-        # print("|", end="")
         return score
 
     @timer
@@ -239,34 +227,28 @@ class MinimaxTree():
             for i in range(0, 3):
                 window = [columns[index + j][i + j] for j in range(0, 4)]
                 score += self.checkWindow(window)
-        # print("|", end="")
 
         for index in range(6, 2, -1):
             for i in range(0, 3):
                 window = [columns[index - j][i + j] for j in range(0, 4)]
                 score += self.checkWindow(window)
-        # print("|", end="")
         return score
 
 
 if __name__ == "__main__":
     b = Board()
-    # b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
-    # b.rows = [[0,1,0,1,1,0,1], [0,0,1,0,1,1,0], [0,1,2,0,2,1,0], [2,1,2,2,2,2,2], [2,2,2,2,2,2,2], [2,2,2,2,2,2,2]]
-    # b.pieces_in_columns = [3,4,2,3,2,3,3]
-    # b.turn = 1
+    b.columns = [[0,0,0], [1,0,1,1], [0,1], [1,0,0], [1,1], [0,1,1], [1,0,0]]
+    b.rows = [[0,1,0,1,1,0,1], [0,0,1,0,1,1,0], [0,1,2,0,2,1,0], [2,1,2,2,2,2,2], [2,2,2,2,2,2,2], [2,2,2,2,2,2,2]]
+    b.pieces_in_columns = [3,4,2,3,2,3,3]
+    b.turn = 1
+
     x1 = time.time()
     mimx = MinimaxTree(7, b, 1, True, False)
     x2 = time.time()
     print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
-    # print(f"R: {mimx.pq.get()}")
+    
     print("")
     x1 = time.time()
     mimx = MinimaxTree(7, b, 1, False, False)
     x2 = time.time()
     print(f"Size: {mimx.size}\t\tTime: {x2 - x1}")
-    # print(f"R: {mimx.pq.get()}")
-    print("")
-    # b.printBoard()
-    # for key, value in mimx.time.items():
-    #     print(f"{key} total time: {round(value, 3)}")
